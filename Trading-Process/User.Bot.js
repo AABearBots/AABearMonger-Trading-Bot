@@ -16,7 +16,7 @@
         start: start
     };
 
-    let platform;                           // You will receive a reference to the platform at your initialize function. 
+    let platform;                           // You will receive a reference to the platform at your initialize function.
 
     /*
 
@@ -87,7 +87,7 @@
                 try {
 
                     switch (err.result) {
-                        case global.DEFAULT_OK_RESPONSE.result: { 
+                        case global.DEFAULT_OK_RESPONSE.result: {
                             logger.write("[INFO] start -> onDone -> Execution finished well. :-)");
                             callBackFunction(global.DEFAULT_OK_RESPONSE);
                             return;
@@ -142,7 +142,7 @@
                         } else {
                             decideAboutSellPosition(positions[0], callBack);
                         }
-                        
+
                     } else {
 
                         /*
@@ -175,7 +175,7 @@
                         let AmountA = INITIAL_BALANCE_A;
                         let AmountB = INITIAL_BALANCE_B;
 
-                        /* 
+                        /*
                         Here is this bot example, we are going to sell all AmountB at once. You can do this or whatever you think is better.
                         */
 
@@ -213,17 +213,17 @@
                     if (LOG_INFO === true) { logger.write("[INFO] start -> decideAboutSellPosition -> Entering function."); }
 
                     /*
-    
+
                     Here is where you decide what to do with your current sell position. Option are:
-    
+
                     1. Do not touch it.
                     2. Move it to another position by changing the rate.
                         a. Up
                         b. Down
                     3. Cancell it. (not yet implemented at the platform.)
-    
+
                     You can use here the information provided, analize it however you want and finally make a decition.
-    
+
                     */
 
                     let candleArray;
@@ -231,17 +231,17 @@
                     let weight;
 
                     /*
-    
+
                     Keeping in mind this is an example of traing bot, we are going to put some logic here that in the end will move the current position
                     up or down. It will move it down if the bot feels it is time to sell, and up if it feels that selling is not a good idea.
-    
+
                     To achieve a final rate to move the current position at the exchange, we are going to go through the available candles and patterns
                     and each one is going to make a micro-move, and at the end we will have a final rate to send a move command to the exchange.
-    
+
                     We will use a weight to give more or less importance to different Time Periods.
-    
+
                     ------
-                    NOTE: The code below is an example and you should replace it by your own logic. This is the key of your intervention here. 
+                    NOTE: The code below is an example and you should replace it by your own logic. This is the key of your intervention here.
                     ------
                     */
 
@@ -251,27 +251,29 @@
 
                     let targetRate = pPosition.rate;
 
-                    let weightArray = [1 / (24 * 60), 1 / (12 * 60), 1 / (8 * 60), 1 / (6 * 60), 1 / (4 * 60), 1 / (3 * 60), 1 / (2 * 60), 1 / (1 * 60)];
+                    let adjustedTargetRatesOverTime = global.marketFilesPeriods.map(function(marketFilesPeriod){
+                      timePeriodName = marketFilesPeriod[1];
+                      candleArray = platform.datasource.candlesMap.get(timePeriodName);
+                      candle = candleArray[candleArray.length - 1];           // The last candle of the 10 candles array.
 
-                    for (i = 0; i < global.marketFilesPeriods.length; i++) {
+                      diff = candle.close - candle.open;
+                      variationPercentage = diff * 100 / candle.open;         // This is the % of how much the rate increased or decreced from open to close.
 
-                        weight = weightArray[i];
+                      targetRate = targetRate + targetRate * variationPercentage / 100 * 0.1;
+                      logger.write("[INFO] bizlogic: name | candleArray | variationPercentage | targetRate -- ", timePeriodName, candleArray, variationPercentage, targetRate);
 
-                        timePeriodName = global.marketFilesPeriods[i][1];
+                      return targetRate;
+                    })
 
-                        candleArray = platform.datasource.candlesMap.get(timePeriodName);
-                        candle = candleArray[candleArray.length - 1];           // The last candle of the 10 candles array.
+                    let calculatedAdjustmentRate = adjustedTargetRatesOverTime.reduce(function ({count, sum}, targetRates) {
+                      return {count: count+1, sum: sum + parseFloat(targetRates)};
+                    }, {count:0, sum:0})
 
-                        diff = candle.close - candle.open;
-                        variationPercentage = diff * 100 / candle.open;         // This is the % of how much the rate increased or decreced from open to close.
-
-                        targetRate = targetRate + targetRate * variationPercentage / 100 * weight;
-
-                    }
+                    let averageAdjustmentRate = calculatedAdjustmentRate.sum / calculatedAdjustmentRate.count);
 
                     /* Finally we move the order position to where we have just estimated is a better place. */
 
-                    platform.assistant.movePosition(pPosition, targetRate, callBack);
+                    platform.assistant.movePosition(pPosition, averageAdjustmentRate, callBack);
 
                 } catch (err) {
                     logger.write("[ERROR] start -> decideAboutSellPosition -> err = " + err.message);

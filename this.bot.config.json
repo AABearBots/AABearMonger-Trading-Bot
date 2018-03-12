@@ -1,18 +1,18 @@
 {
-  "displayName": "Mariam",
-  "codeName": "AAMariam",
+  "displayName": "BearMonger",
+  "codeName": "AAMBearMonger",
   "type": "Trading",
   "version": {
     "major": 1,
     "minor": 0,
     "patch": 0
   },
-  "devTeam": "AAMasters",
+  "devTeam": "AABearBots",
   "dataSetVersion": "dataSet.V1",
   "processes": [
     {
       "name": "Trading-Process",
-      "description": "Simple trading strategy to be used as a template.",
+      "description": "Simple trading strategy",
       "startMode": {
         "allMonths": {
           "run": "false",
@@ -35,9 +35,9 @@
   "products": [
     {
       "codeName": "Trading History",
-      "displayName": "Mariam Trading History",
-      "description": "General information about Mariam trading history.",
-      "storageAccount": "aamariam",
+      "displayName": "BearMonger Trading History",
+      "description": "General information about BearMonger trading history.",
+      "storageAccount": "aabearmonger",
       "sets": [
         {
           "type": "Single File",
@@ -52,7 +52,7 @@
         }
       ],
       "plotter": {
-        "devTeam": "AAMasters",
+        "devTeam": "AABearBots",
         "repo": "Plotters-Trading",
         "moduleName": "History"
       }
@@ -63,6 +63,3 @@
     "fileUri": "https://aamariam.file.core.windows.net"
   }
 }
-
-
-
