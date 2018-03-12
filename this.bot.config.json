@@ -1,6 +1,6 @@
 {
   "displayName": "BearMonger",
-  "codeName": "AAMBearMonger",
+  "codeName": "AABearMonger",
   "type": "Trading",
   "version": {
     "major": 1,
@@ -59,7 +59,7 @@
     }
   ],
   "storage": {
-    "sas": "?sv=2017-07-29&ss=f&srt=sco&sp=r&se=2018-12-30T23:44:52Z&st=2018-02-25T15:44:52Z&spr=https&sig=0pzOTcVAAOkgH7C4KmA1Rbs15kyjvVC1XFCsLQYjXKU%3D",
-    "fileUri": "https://aamariam.file.core.windows.net"
+    "sas": "?sv=2017-07-29&ss=f&srt=sco&sp=rl&se=2018-12-31T04:47:12Z&st=2018-03-01T20:47:12Z&spr=https&sig=VFMzqZUyr%2FYiWTrdHV60Zib0hb1PTqzcqEKAl97aLvA%3D",
+    "fileUri": "https://aabearmonger.file.core.windows.net"
   }
 }

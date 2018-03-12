@@ -251,29 +251,27 @@
 
                     let targetRate = pPosition.rate;
 
-                    let adjustedTargetRatesOverTime = global.marketFilesPeriods.map(function(marketFilesPeriod){
-                      timePeriodName = marketFilesPeriod[1];
-                      candleArray = platform.datasource.candlesMap.get(timePeriodName);
-                      candle = candleArray[candleArray.length - 1];           // The last candle of the 10 candles array.
+                    let weightArray = [1 / (24 * 60), 1 / (12 * 60), 1 / (8 * 60), 1 / (6 * 60), 1 / (4 * 60), 1 / (3 * 60), 1 / (2 * 60), 1 / (1 * 60)];
 
-                      diff = candle.close - candle.open;
-                      variationPercentage = diff * 100 / candle.open;         // This is the % of how much the rate increased or decreced from open to close.
+                    for (i = 0; i < global.marketFilesPeriods.length; i++) {
 
-                      targetRate = targetRate + targetRate * variationPercentage / 100 * 0.1;
-                      logger.write("[INFO] bizlogic: name | candleArray | variationPercentage | targetRate -- ", timePeriodName, candleArray, variationPercentage, targetRate);
+                        weight = weightArray[i];
 
-                      return targetRate;
-                    })
+                        timePeriodName = global.marketFilesPeriods[i][1];
 
-                    let calculatedAdjustmentRate = adjustedTargetRatesOverTime.reduce(function ({count, sum}, targetRates) {
-                      return {count: count+1, sum: sum + parseFloat(targetRates)};
-                    }, {count:0, sum:0})
+                        candleArray = platform.datasource.candlesMap.get(timePeriodName);
+                        candle = candleArray[candleArray.length - 1];           // The last candle of the 10 candles array.
 
-                    let averageAdjustmentRate = calculatedAdjustmentRate.sum / calculatedAdjustmentRate.count);
+                        diff = candle.close - candle.open;
+                        variationPercentage = diff * 100 / candle.open;         // This is the % of how much the rate increased or decreced from open to close.
+
+                        targetRate = targetRate + targetRate * variationPercentage / 100 * weight;
+
+                    }
 
                     /* Finally we move the order position to where we have just estimated is a better place. */
 
-                    platform.assistant.movePosition(pPosition, averageAdjustmentRate, callBack);
+                    platform.assistant.movePosition(pPosition, targetRate, callBack);
 
                 } catch (err) {
                     logger.write("[ERROR] start -> decideAboutSellPosition -> err = " + err.message);
