@@ -134,6 +134,7 @@
                     */
 
                     let positions = platform.assistant.getPositions();
+                    logger.write("[DATA] positions: " + positions);
 
                     if (positions.length > 0) {
 
@@ -157,7 +158,7 @@
                         */
 
                         let currentRate = platform.assistant.getMarketRate();
-
+                        logger.write("[DATA] currentRate: " + currentRate);
                         /*
                         As we just want to create the first order now and we do not want this order to get executed, we will put it at
                         the +50% of current exchange rate. Next Bot execution will move it strategically.
@@ -181,7 +182,11 @@
 
                         AmountA = AmountB * rate;
 
-                        platform.assistant.putPosition("sell", rate, AmountA, AmountB, callBack);
+                          // orig--> platform.assistant.putPosition("sell", rate, AmountA, AmountB, callBack);
+                        let balance = platform.assistant.getBalance();
+                        logger.write("[DATA] balance: " + balance.assetA + " | " + balance.assetB );
+
+                        callback(global.DEFAULT_OK_RESPONSE);
 
                     }
                 } catch (err) {
